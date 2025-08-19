@@ -59,6 +59,7 @@ class _DetailPageState extends State<DetailPage> {
               ),
             );
           }
+          final providerOffline = context.read<RestaurantDetailProvider>().isOffline;
           final restaurant = (state as ApiSuccess<Restaurant>).data;
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -66,6 +67,18 @@ class _DetailPageState extends State<DetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (providerOffline)
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.orangeAccent),
+                    ),
+                    child: const Text('Offline data: menampilkan data tersimpan.'),
+                  ),
                 Stack(
                   children: [
                     Hero(

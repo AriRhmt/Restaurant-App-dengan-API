@@ -3,11 +3,14 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/restaurant.dart';
+import '../models/restaurant_meta.dart';
 
 class RestaurantService {
   const RestaurantService();
 
-  Future<List<Restaurant>> fetchRestaurants() async {
+  static final Map<String, Restaurant> _detailMemoryCache = <String, Restaurant>{};
+
+  Future<RestaurantListResult> fetchRestaurantsWithMeta() async {
     // Small UX delay for shimmer consistency
     await Future<void>.delayed(const Duration(milliseconds: 300));
 
@@ -31,7 +34,7 @@ class RestaurantService {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('restaurant_cache_v1', json.encode(items));
         await prefs.setInt('restaurant_cache_v1_at', DateTime.now().millisecondsSinceEpoch);
-        return restaurants;
+        return RestaurantListResult(items: restaurants, isOffline: false);
       }
       throw Exception('Bad status: ${res.statusCode}');
     } catch (_) {
@@ -41,7 +44,10 @@ class RestaurantService {
         final cached = prefs.getString('restaurant_cache_v1');
         if (cached != null) {
           final list = (json.decode(cached) as List).cast<Map<String, dynamic>>();
-          return list.map((m) => Restaurant.fromMap(m)).toList();
+          return RestaurantListResult(
+            items: list.map((m) => Restaurant.fromMap(m)).toList(),
+            isOffline: true,
+          );
         }
       } catch (_) {}
 
@@ -49,14 +55,32 @@ class RestaurantService {
       final jsonStr = await rootBundle.loadString('assets/data/restaurants.json');
       final jsonMap = json.decode(jsonStr) as Map<String, dynamic>;
       final list = (jsonMap['restaurants'] as List).cast<Map<String, dynamic>>();
-      return list.map((m) => Restaurant.fromMap(m)).toList();
+      return RestaurantListResult(
+        items: list.map((m) => Restaurant.fromMap(m)).toList(),
+        isOffline: true,
+      );
     }
   }
 
-  Future<Restaurant> fetchRestaurantDetail(String id) async {
+  Future<RestaurantDetailResult> fetchRestaurantDetailWithMeta(String id) async {
+    // in-memory cache first
+    final cached = _detailMemoryCache[id];
+    if (cached != null) {
+      return RestaurantDetailResult(restaurant: cached, isOffline: false);
+    }
     final uri = Uri.parse('https://restaurant-api.dicoding.dev/detail/$id');
     final res = await http.get(uri).timeout(const Duration(seconds: 8));
     if (res.statusCode != 200) {
+      // try SharedPreferences fallback
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final data = prefs.getString('detail_$id');
+        if (data != null) {
+          final map = json.decode(data) as Map<String, dynamic>;
+          final r = Restaurant.fromMap(map);
+          return RestaurantDetailResult(restaurant: r, isOffline: true);
+        }
+      } catch (_) {}
       throw Exception('Failed to load detail');
     }
     final jsonMap = json.decode(res.body) as Map<String, dynamic>;
@@ -79,7 +103,24 @@ class RestaurantService {
           .map((e) => RestaurantReview.fromMap((e as Map<String, dynamic>)))
           .toList(),
     );
-    return model;
+    _detailMemoryCache[id] = model;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final store = {
+        'id': model.id,
+        'name': model.name,
+        'city': model.city,
+        'rating': model.rating,
+        'description': model.description,
+        'image': model.image,
+        'address': model.address,
+        'foods': model.foods,
+        'drinks': model.drinks,
+        'reviews': model.reviews?.map((e) => {'name': e.name, 'review': e.review, 'date': e.date}).toList(),
+      };
+      await prefs.setString('detail_$id', json.encode(store));
+    } catch (_) {}
+    return RestaurantDetailResult(restaurant: model, isOffline: false);
   }
 
   Future<List<Restaurant>> searchRestaurants(String query) async {

@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 import '../models/api_state.dart';
 import '../models/restaurant.dart';
 import '../services/restaurant_service.dart';
+import '../models/restaurant_meta.dart';
 
 class RestaurantListProvider extends ChangeNotifier {
   final RestaurantService _service;
   ApiState<List<Restaurant>> state = const ApiLoading();
+  bool isOffline = false;
 
   RestaurantListProvider(this._service);
 
@@ -13,8 +15,9 @@ class RestaurantListProvider extends ChangeNotifier {
     state = const ApiLoading();
     notifyListeners();
     try {
-      final data = await _service.fetchRestaurants();
-      state = ApiSuccess<List<Restaurant>>(data);
+      final result = await _service.fetchRestaurantsWithMeta();
+      isOffline = result.isOffline;
+      state = ApiSuccess<List<Restaurant>>(result.items);
     } catch (e, st) {
       state = ApiError<List<Restaurant>>(e, st);
     }
@@ -25,6 +28,7 @@ class RestaurantListProvider extends ChangeNotifier {
 class RestaurantDetailProvider extends ChangeNotifier {
   final RestaurantService _service;
   ApiState<Restaurant> state = const ApiLoading();
+  bool isOffline = false;
 
   RestaurantDetailProvider(this._service);
 
@@ -32,8 +36,9 @@ class RestaurantDetailProvider extends ChangeNotifier {
     state = const ApiLoading();
     notifyListeners();
     try {
-      final data = await _service.fetchRestaurantDetail(id);
-      state = ApiSuccess<Restaurant>(data);
+      final result = await _service.fetchRestaurantDetailWithMeta(id);
+      isOffline = result.isOffline;
+      state = ApiSuccess<Restaurant>(result.restaurant);
     } catch (e, st) {
       state = ApiError<Restaurant>(e, st);
     }
