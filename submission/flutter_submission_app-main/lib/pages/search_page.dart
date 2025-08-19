@@ -54,7 +54,29 @@ class _SearchPageState extends State<SearchPage> {
               builder: (context, provider, _) {
                 final state = provider.state;
                 if (state is ApiLoading<List<Restaurant>>) {
-                  return const Center(child: CircularProgressIndicator());
+                  return ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemBuilder: (context, index) => Row(
+                      children: [
+                        Container(width: 110, height: 80, decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(12))),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(height: 18, width: 180, color: Colors.black12),
+                              const SizedBox(height: 8),
+                              Container(height: 14, width: 120, color: Colors.black12),
+                              const SizedBox(height: 8),
+                              Container(height: 14, width: 80, color: Colors.black12),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    itemCount: 6,
+                  );
                 }
                 if (state is ApiError<List<Restaurant>>) {
                   return Center(

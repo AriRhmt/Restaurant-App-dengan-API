@@ -8,6 +8,7 @@ class Restaurant {
 
   // Detail fields
   final String? address;
+  final List<String>? categories;
   final List<String>? foods;
   final List<String>? drinks;
   final List<RestaurantReview>? reviews;
@@ -20,6 +21,7 @@ class Restaurant {
     required this.description,
     required this.image,
     this.address,
+    this.categories,
     this.foods,
     this.drinks,
     this.reviews,
@@ -33,6 +35,7 @@ class Restaurant {
         description: map['description'] as String,
         image: map['image'] as String,
         address: map['address'] as String?,
+        categories: (map['categories'] as List?)?.map((e) => e as String).toList(),
         foods: (map['foods'] as List?)?.map((e) => e as String).toList(),
         drinks: (map['drinks'] as List?)?.map((e) => e as String).toList(),
         reviews: (map['reviews'] as List?)

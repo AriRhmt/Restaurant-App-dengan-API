@@ -252,6 +252,16 @@ class _DetailPageState extends State<DetailPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                if ((restaurant.categories ?? []).isNotEmpty) ...[
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: restaurant.categories!
+                        .map((c) => Chip(label: Text(c)))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 Text(
                   restaurant.description,
                   style: Theme.of(context).textTheme.bodyLarge,
@@ -289,16 +299,28 @@ class _DetailPageState extends State<DetailPage> {
                 const SizedBox(height: 16),
                 Text('Reviews', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
-                ...(restaurant.reviews ?? const <RestaurantReview>[])
-                    .map((rev) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Theme.of(context).dividerColor)),
-                            title: Text(rev.name),
-                            subtitle: Text(rev.review),
-                            trailing: Text(rev.date, style: Theme.of(context).textTheme.bodySmall),
-                          ),
-                        )),
+                if ((restaurant.reviews ?? []).isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Theme.of(context).dividerColor),
+                    ),
+                    child: const Text('Belum ada ulasan.'),
+                  )
+                else
+                  ...(restaurant.reviews ?? const <RestaurantReview>[])
+                      .map((rev) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Theme.of(context).dividerColor)),
+                              title: Text(rev.name),
+                              subtitle: Text(rev.review),
+                              trailing: Text(rev.date, style: Theme.of(context).textTheme.bodySmall),
+                            ),
+                          )),
                 const SizedBox(height: 8),
                 _ReviewForm(onSubmit: (name, review) async {
                   await context.read<RestaurantDetailProvider>().addReview(name, review);

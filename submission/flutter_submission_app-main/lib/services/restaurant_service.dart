@@ -93,6 +93,9 @@ class RestaurantService {
       description: r['description'] as String,
       image: 'https://restaurant-api.dicoding.dev/images/large/${r['pictureId']}',
       address: r['address'] as String,
+      categories: ((r['categories'] as List?) ?? const [])
+          .map((e) => (e as Map<String, dynamic>)['name'] as String)
+          .toList(),
       foods: ((r['menus']?['foods'] as List?) ?? const [])
           .map((e) => (e as Map<String, dynamic>)['name'] as String)
           .toList(),
@@ -114,6 +117,7 @@ class RestaurantService {
         'description': model.description,
         'image': model.image,
         'address': model.address,
+        'categories': model.categories,
         'foods': model.foods,
         'drinks': model.drinks,
         'reviews': model.reviews?.map((e) => {'name': e.name, 'review': e.review, 'date': e.date}).toList(),
