@@ -12,6 +12,7 @@ import 'pages/search_page.dart';
 import 'theme.dart';
 import 'providers/restaurant_providers.dart';
 import 'services/restaurant_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const AppRoot());
@@ -27,6 +28,26 @@ class AppRoot extends StatefulWidget {
 class _AppRootState extends State<AppRoot> {
   ThemeMode _mode = ThemeMode.light;
   int _tab = 0;
+
+  static const _themePrefKey = 'dark_mode_enabled';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  Future<void> _loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDark = prefs.getBool(_themePrefKey) ?? false;
+    setState(() => _mode = isDark ? ThemeMode.dark : ThemeMode.light);
+  }
+
+  Future<void> _updateThemeMode(ThemeMode m) async {
+    setState(() => _mode = m);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_themePrefKey, m == ThemeMode.dark);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +88,7 @@ class _AppRootState extends State<AppRoot> {
                 const FavoritesPage(),
                 SettingsPage(
                   themeMode: _mode,
-                  onThemeModeChanged: (m) => setState(() => _mode = m),
+                  onThemeModeChanged: _updateThemeMode,
                 ),
               ],
             ),

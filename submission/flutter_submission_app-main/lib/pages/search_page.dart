@@ -16,9 +16,11 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
+  Timer? _debounce;
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -37,7 +39,13 @@ class _SearchPageState extends State<SearchPage> {
                 hintText: 'Type to search... ',
                 prefixIcon: Icon(Icons.search_rounded),
               ),
-              onChanged: (q) => context.read<RestaurantSearchProvider>().search(q),
+              onChanged: (q) {
+                _debounce?.cancel();
+                _debounce = Timer(const Duration(milliseconds: 350), () {
+                  if (!mounted) return;
+                  context.read<RestaurantSearchProvider>().search(q);
+                });
+              },
             ),
           ),
           Expanded(
