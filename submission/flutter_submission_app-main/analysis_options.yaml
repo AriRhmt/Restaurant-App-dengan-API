@@ -1,0 +1,16 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    - prefer_const_constructors
+    - prefer_const_literals_to_create_immutables
+    - prefer_const_declarations
+    - always_declare_return_types
+    - use_key_in_widget_constructors
+    - avoid_unnecessary_containers
+    - directives_ordering
+
+analyzer:
+  exclude:
+    - build/**
+    - .dart_tool/**
