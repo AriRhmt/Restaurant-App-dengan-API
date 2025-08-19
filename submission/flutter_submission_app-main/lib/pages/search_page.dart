@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 
 import '../models/api_state.dart';
 import '../models/restaurant.dart';
@@ -79,13 +80,22 @@ class _SearchPageState extends State<SearchPage> {
                   );
                 }
                 if (state is ApiError<List<Restaurant>>) {
+                  final err = state.error;
+                  String message = 'Failed to search. Check connection.';
+                  if (err is TimeoutException) message = 'Timeout saat pencarian';
+                  if (err is SocketException) message = 'Tidak ada koneksi internet';
                   return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.wifi_off_rounded, size: 48),
-                        SizedBox(height: 8),
-                        Text('Failed to search. Check connection.'),
+                      children: [
+                        const Icon(Icons.wifi_off_rounded, size: 48),
+                        const SizedBox(height: 8),
+                        Text(message),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () => context.read<RestaurantSearchProvider>().search(_controller.text),
+                          child: const Text('Coba lagi'),
+                        ),
                       ],
                     ),
                   );
@@ -157,4 +167,3 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
-

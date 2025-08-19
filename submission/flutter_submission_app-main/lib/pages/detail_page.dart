@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -126,12 +128,16 @@ class _DetailPageState extends State<DetailPage> {
             );
           }
           if (state is ApiError<Restaurant>) {
+            final err = state.error;
+            String message = 'Failed to load restaurant detail';
+            if (err is TimeoutException) message = 'Timeout saat memuat detail';
+            if (err is SocketException) message = 'Tidak ada koneksi internet';
             return SafeArea(
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Failed to load restaurant detail'),
+                    Text(message),
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: () => context.read<RestaurantDetailProvider>().load(arg.id),
