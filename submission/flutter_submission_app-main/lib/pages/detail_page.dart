@@ -178,11 +178,14 @@ class _DetailPageState extends State<DetailPage> {
                         borderRadius: BorderRadius.circular(16),
                         child: AspectRatio(
                           aspectRatio: 16 / 9,
-                          child: CachedNetworkImage(
-                              imageUrl: restaurant.image,
-                              fit: BoxFit.cover,
-                              placeholder: (c, _) => Container(color: Colors.black12),
-                              errorWidget: (c, _, __) => (const Icon(Icons.broken_image_rounded))),
+                          child: Semantics(
+                            label: 'Foto ${restaurant.name} di ${restaurant.city}',
+                            child: CachedNetworkImage(
+                                imageUrl: restaurant.image,
+                                fit: BoxFit.cover,
+                                placeholder: (c, _) => Container(color: Colors.black12),
+                                errorWidget: (c, _, __) => (const Icon(Icons.broken_image_rounded))),
+                          ),
                         ),
                       ),
                     ),

@@ -394,7 +394,38 @@ class _RestaurantCard extends StatelessWidget {
 							borderRadius: BorderRadius.circular(12),
 							child: AspectRatio(
 								aspectRatio: 16 / 9,
-								child: CachedNetworkImage(imageUrl: restaurant.image, fit: BoxFit.cover, placeholder: (c,_)=>Container(color: Colors.black12), errorWidget: (c,_,__)=>(const Icon(Icons.broken_image_rounded))),
+								child: Stack(
+									children: [
+										Semantics(
+											label: 'Foto ${restaurant.name} di ${restaurant.city}',
+											child: CachedNetworkImage(
+												imageUrl: restaurant.image,
+												fit: BoxFit.cover,
+												placeholder: (c,_)=>Container(color: Colors.black12),
+												errorWidget: (c,_,__)=>(const Icon(Icons.broken_image_rounded)),
+											),
+										),
+										Positioned(
+											top: 8,
+											left: 8,
+											child: Container(
+												padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+												decoration: BoxDecoration(
+													color: Colors.black.withOpacity(0.6),
+													borderRadius: BorderRadius.circular(8),
+												),
+												child: Row(
+													mainAxisSize: MainAxisSize.min,
+													children: [
+														const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+														const SizedBox(width: 4),
+														Text(restaurant.rating.toStringAsFixed(1), style: const TextStyle(color: Colors.white)),
+													],
+												),
+											),
+										),
+									],
+								),
 							),
 						),
 					),
