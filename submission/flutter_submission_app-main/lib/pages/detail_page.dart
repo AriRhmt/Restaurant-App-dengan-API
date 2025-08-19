@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../models/api_state.dart';
 import '../models/restaurant.dart';
@@ -40,7 +41,89 @@ class _DetailPageState extends State<DetailPage> {
         builder: (context, provider, _) {
           final state = provider.state;
           if (state is ApiLoading<Restaurant>) {
-            return const SafeArea(child: Center(child: CircularProgressIndicator()));
+            // Shimmer skeleton while loading detail
+            return SafeArea(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(height: 24, width: 240, color: Colors.white),
+                    ),
+                    const SizedBox(height: 8),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(height: 18, width: 160, color: Colors.white),
+                    ),
+                    const SizedBox(height: 12),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(height: 18, width: 100, color: Colors.white),
+                    ),
+                    const SizedBox(height: 16),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Column(
+                        children: [
+                          Container(height: 14, width: double.infinity, color: Colors.white),
+                          const SizedBox(height: 8),
+                          Container(height: 14, width: double.infinity, color: Colors.white),
+                          const SizedBox(height: 8),
+                          Container(height: 14, width: 200, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: SizedBox(
+                        height: 120,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (c, i) => Container(width: 160, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
+                          separatorBuilder: (c, i) => const SizedBox(width: 8),
+                          itemCount: 4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: SizedBox(
+                        height: 120,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (c, i) => Container(width: 160, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
+                          separatorBuilder: (c, i) => const SizedBox(width: 8),
+                          itemCount: 4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
           if (state is ApiError<Restaurant>) {
             return SafeArea(
@@ -61,10 +144,12 @@ class _DetailPageState extends State<DetailPage> {
           }
           final providerOffline = context.read<RestaurantDetailProvider>().isOffline;
           final restaurant = (state as ApiSuccess<Restaurant>).data;
-          return SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(16),
-            child: Column(
+          return RefreshIndicator(
+            onRefresh: () async => context.read<RestaurantDetailProvider>().load(arg.id),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (providerOffline)
