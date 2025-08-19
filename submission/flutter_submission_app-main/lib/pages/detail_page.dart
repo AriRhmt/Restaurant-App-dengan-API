@@ -130,7 +130,13 @@ class _DetailPageState extends State<DetailPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text(restaurant.name, style: Theme.of(context).textTheme.headlineMedium),
+                Hero(
+                  tag: 'title_${restaurant.id}',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(restaurant.name, style: Theme.of(context).textTheme.headlineMedium),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [

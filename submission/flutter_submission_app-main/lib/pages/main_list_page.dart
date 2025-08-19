@@ -20,7 +20,7 @@ class MainListPage extends StatefulWidget {
 }
 
 class _MainListPageState extends State<MainListPage> {
-	final _favoriteService = FavoriteService();
+	final FavoriteService _favoriteService = FavoriteService();
 	List<Restaurant> _items = const [];
 	Set<String> _favorites = {};
 	String _query = '';
@@ -40,9 +40,9 @@ class _MainListPageState extends State<MainListPage> {
 	}
 
 	Future<void> _loadFavorites() async {
-		final favRows = await _favoriteService.allFavorites();
+		final rows = await _favoriteService.allFavorites();
 		if (!mounted) return;
-		setState(() => _favorites = favRows.map((e) => e['id'] as String).toSet());
+		setState(() => _favorites = rows.map((e) => e['id'] as String).toSet());
 	}
 
 	void _toggleFavorite(Restaurant r) async {
@@ -139,61 +139,52 @@ class _MainListPageState extends State<MainListPage> {
 																						selected: active,
 																						onSelected: (_) => setModal(() => tempCity = c),
 																					);
-																				}).toList(),
-																			),
-																			const SizedBox(height: 16),
-																			DropdownButtonFormField<String>(
-																				value: tempSort,
-																				decoration: const InputDecoration(labelText: 'Sort by'),
-																				items: const [
-																					DropdownMenuItem(value: 'Rating', child: Text('Rating')),
-																					DropdownMenuItem(value: 'Name', child: Text('Name')),
-																				],
-																				onChanged: (v) => setModal(() => tempSort = v ?? 'Rating'),
-																			),
-																			const SizedBox(height: 16),
-																			Text('Minimum Rating: ${minRating.toStringAsFixed(1)}'),
-																			Slider(
-																				min: 0,
-																				max: 5,
-																				divisions: 10,
-																				value: minRating,
-																				label: minRating.toStringAsFixed(1),
-																				onChanged: (v) => setModal(() => minRating = v),
-																			),
-																			const SizedBox(height: 8),
-																			Align(
-																				alignment: Alignment.centerRight,
-																				child: ElevatedButton(
-																					onPressed: () {
-																					setState(() {
-																						_cityFilter = tempCity;
-																						_sort = tempSort;
-																						_minRating = minRating;
-																					});
-																					Navigator.pop(context);
-																				},
-																					child: const Text('Apply'),
-																				),
-																			)
-																		],
+																			}).toList(),
+																		),
+																		const SizedBox(height: 16),
+																		DropdownButtonFormField<String>(
+																			value: tempSort,
+																			decoration: const InputDecoration(labelText: 'Sort by'),
+																			items: const [
+																				DropdownMenuItem(value: 'Rating', child: Text('Rating')),
+																				DropdownMenuItem(value: 'Name', child: Text('Name')),
+																			],
+																			onChanged: (v) => setModal(() => tempSort = v ?? 'Rating'),
+																		),
+																		const SizedBox(height: 16),
+																		Text('Minimum Rating: ${minRating.toStringAsFixed(1)}'),
+																		Slider(
+																			min: 0,
+																			max: 5,
+																			divisions: 10,
+																			value: minRating,
+																			label: minRating.toStringAsFixed(1),
+																			onChanged: (v) => setModal(() => minRating = v),
+																		),
+																		const SizedBox(height: 8),
+																		Align(
+																			alignment: Alignment.centerRight,
+																			child: ElevatedButton(
+																				onPressed: () {
+																				setState(() {
+																					_cityFilter = tempCity;
+																					_sort = tempSort;
+																					_minRating = minRating;
+																				});
+																				Navigator.pop(context);
+																			},
+																			child: const Text('Apply'),
+																		),
 																	),
-																);
-															},
+																],
+															),
 														);
 												},
-											),
-										],
-									),
-									const SizedBox(height: 12),
-									_FilterBar(
-										items: ['All', ...{..._items.map((e) => e.city)}.toList()..sort(),
-										selected: _cityFilter,
-										onChanged: (v) => setState(() => _cityFilter = v),
-										sort: _sort,
-										onSortChanged: (v) => setState(() => _sort = v),
-									),
-								],
+											);
+										},
+										),
+									],
+								),
 							),
 						),
 						Consumer<RestaurantListProvider>(
