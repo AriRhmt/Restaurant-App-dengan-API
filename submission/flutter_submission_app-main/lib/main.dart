@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 import 'core_scroll_behavior.dart';
 import 'pages/detail_page.dart';
-import 'pages/details_page.dart';
 import 'pages/main_list_page.dart';
 import 'pages/favorites_page.dart';
 import 'pages/settings_page.dart';
+import 'pages/search_page.dart';
 import 'theme.dart';
+import 'providers/restaurant_providers.dart';
+import 'services/restaurant_service.dart';
 
 void main() {
   runApp(const AppRoot());
@@ -36,7 +39,13 @@ class _AppRootState extends State<AppRoot> {
       final darkTheme = darkDynamic != null
           ? dark.copyWith(colorScheme: darkDynamic.harmonized())
           : dark;
-      return MaterialApp(
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => RestaurantListProvider(const RestaurantService())),
+          ChangeNotifierProvider(create: (_) => RestaurantDetailProvider(const RestaurantService())),
+          ChangeNotifierProvider(create: (_) => RestaurantSearchProvider(const RestaurantService())),
+        ],
+        child: MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Submission App',
       theme: theme,
@@ -63,9 +72,10 @@ class _AppRootState extends State<AppRoot> {
               ],
             ),
         '/detail': (_) => const DetailPage(),
-        '/details': (_) => const DetailsPage(),
+        '/search': (_) => const SearchPage(),
       },
-    );
+    ),
+      );
     });
   }
 }
